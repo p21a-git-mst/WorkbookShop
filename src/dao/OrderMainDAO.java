@@ -12,187 +12,117 @@ import java.util.List;
 import model.OrderMain;
 import model.Usr;
 
-public class OrderMainDAO implements DBConfig{
+public class OrderMainDAO implements DBConfig {
 
-    public OrderMain create(OrderMain orderMain) {
-        Connection conn = null;
-        Integer po_id=null;
+	static {
+		try {
+			Class.forName(DRIVER_NAME);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 
+	public OrderMain create(OrderMain orderMain) {
+		Integer po_id = null;
 
-        try {
-            conn = DriverManager.getConnection(JDBC_URL,DB_USER,DB_PASS);
+		try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)) {
 
-            String sql = "INSERT INTO order_main(user_id,order_date,delivery_date) VALUES (?,CURRENT_DATE,null);";
+			String sql = "INSERT INTO order_main(user_id,order_date,delivery_date) VALUES (?,CURRENT_DATE,null);";
 
+			PreparedStatement pStmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            PreparedStatement pStmt=conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+			pStmt.setString(1, orderMain.getUser_id());
 
-            pStmt.setString(1,orderMain.getUser_id());
+			System.out.println(pStmt.executeUpdate());
 
+			ResultSet rs = pStmt.getGeneratedKeys();
 
-                  System.out.println(pStmt.executeUpdate());
+			while (rs.next()) {
+				java.math.BigDecimal idColVar = rs.getBigDecimal(1);
+				po_id = idColVar.intValue();
+			}
 
+			orderMain.setPo_id(po_id);
 
-            ResultSet rs=pStmt.getGeneratedKeys();
+			return orderMain;
 
-                while (rs.next()) {
-                      java.math.BigDecimal idColVar = rs.getBigDecimal(1);
-                      po_id =idColVar.intValue();
-                }
-                    rs.close();                           // Close ResultSet
-                    pStmt.close();                         // Close Statement
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return orderMain;
+		}
+	}
 
-                    orderMain.setPo_id(po_id);
+	public List<OrderMain> findAllByUserId(Usr loginUsr) {
+		List<OrderMain> orderMainList = new ArrayList<OrderMain>();
 
-                    return orderMain;
+		try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)) {
 
-        }catch(SQLException e){
-            e.printStackTrace();
-                    return orderMain;
-        }finally {
-            if(conn !=null) {
-                try {
-                    conn.close();
+			String sql = "SELECT * FROM order_main WHERE user_id=? ORDER BY order_date DESC;";
 
-                }catch(SQLException e) {
-                    e.printStackTrace();
-                    return orderMain;
-                }
-            }
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setString(1, loginUsr.getUser_id());
 
+			ResultSet rs = pStmt.executeQuery();
 
-        }
+			System.out.println(rs);
 
-        }
+			while (rs.next()) {
 
+				Integer po_id = rs.getInt("po_id");
+				String user_id = rs.getString("user_id");
+				String order_date = rs.getString("order_date");
+				String delivery_date = rs.getString("delivery_date");
 
+				//System.out.println(p_id+";"+p_name+";"+price+";");
 
-    public List<OrderMain> findAllByUserId(Usr loginUsr){
-        Connection conn = null;
-        List<OrderMain> orderMainList= new ArrayList<OrderMain>();
+				OrderMain orderMainResult = new OrderMain(po_id,
+															user_id,
+															order_date,
+															delivery_date);
 
-        try {
-            Class.forName(DRIVER_NAME);
-            conn=DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
+				orderMainList.add(orderMainResult);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return orderMainList;
+	}
 
-            String sql="SELECT * FROM order_main WHERE user_id=? ORDER BY order_date DESC;";
+	public List<OrderMain> selectByPoId(Integer po_id) {
+		List<OrderMain> orderMainList = new ArrayList<OrderMain>();
 
-            PreparedStatement pStmt=conn.prepareStatement(sql);
-            pStmt.setString(1,loginUsr.getUser_id());
+		try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)) {
 
-            ResultSet rs=pStmt.executeQuery();
+			String sql = "SELECT * FROM order_main WHERE po_id=?;";
 
-            System.out.println(rs);
+			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, po_id);
 
-                while(rs.next()) {
+			ResultSet rs = pStmt.executeQuery();
 
-                    Integer po_id = rs.getInt("po_id");
-                    String user_id = rs.getString("user_id");
-                    String order_date = rs.getString("order_date");
-                    String delivery_date = rs.getString("delivery_date");
+			System.out.println(rs);
 
-                    //System.out.println(p_id+";"+p_name+";"+price+";");
+			while (rs.next()) {
 
-                    OrderMain orderMainResult = new OrderMain(
-                            po_id,
-                            user_id,
-                            order_date,
-                            delivery_date
-                            );
+				po_id = rs.getInt("po_id");
+				String user_id = rs.getString("user_id");
+				String order_date = rs.getString("order_date");
+				String delivery_date = rs.getString("delivery_date");
 
-                    orderMainList.add(orderMainResult);
+				//System.out.println(p_id+";"+p_name+";"+price+";");
 
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-                return null;
-            }catch(ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-
-            }finally {
-                if(conn !=null) {
-                    try {
-                        conn.close();
-
-                    }catch(SQLException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
-
-
-            }
-
-                return orderMainList;
-
-            }
-
-
-
-    public List<OrderMain> selectByPoId(Integer po_id){
-        Connection conn = null;
-        List<OrderMain> orderMainList= new ArrayList<OrderMain>();
-
-        try {
-            Class.forName(DRIVER_NAME);
-            conn=DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
-
-            String sql="SELECT * FROM order_main WHERE po_id=?;";
-
-            PreparedStatement pStmt=conn.prepareStatement(sql);
-            pStmt.setInt(1,po_id);
-
-            ResultSet rs=pStmt.executeQuery();
-
-            System.out.println(rs);
-
-                while(rs.next()) {
-
-                    po_id = rs.getInt("po_id");
-                    String user_id = rs.getString("user_id");
-                    String order_date = rs.getString("order_date");
-                    String delivery_date = rs.getString("delivery_date");
-
-                    //System.out.println(p_id+";"+p_name+";"+price+";");
-
-                    OrderMain orderMainResult = new OrderMain(
-                            po_id,
-                            user_id,
-                            order_date,
-                            delivery_date
-                            );
-
-                    orderMainList.add(orderMainResult);
-
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-                return null;
-            }catch(ClassNotFoundException e) {
-                e.printStackTrace();
-                return null;
-
-            }finally {
-                if(conn !=null) {
-                    try {
-                        conn.close();
-
-                    }catch(SQLException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
-
-
-            }
-
-                return orderMainList;
-
-            }
-
-
-
-
-    }
-
+				OrderMain orderMainResult = new OrderMain(po_id,
+															user_id,
+															order_date,
+															delivery_date);
+
+				orderMainList.add(orderMainResult);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return orderMainList;
+	}
+}
