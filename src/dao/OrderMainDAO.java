@@ -24,7 +24,7 @@ public class OrderMainDAO implements DBConfig {
 
 	public OrderMain create(OrderMain orderMain) {
 		Integer po_id = null;
-
+		//try-catch修正
 		try (Connection conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS)) {
 
 			String sql = "INSERT INTO order_main(user_id,order_date,delivery_date) VALUES (?,CURRENT_DATE,null);";
