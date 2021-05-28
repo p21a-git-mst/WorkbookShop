@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,6 @@ public class UsrDAO implements DBConfig {
 			e.printStackTrace();
 			return null;
 		}
-
 		return usrList;
 	}
 
@@ -97,7 +97,7 @@ public class UsrDAO implements DBConfig {
 				}
 				System.out.println(newID);
 
-				String sql = "SELECT count(*) AS cnt  FROM usr where usr_id=?;";
+				String sql = "SELECT count(*) AS cnt  FROM usr where user_id=?;";
 				PreparedStatement pStmt = conn.prepareStatement(sql);
 				pStmt.setString(1, newID);
 
@@ -113,7 +113,6 @@ public class UsrDAO implements DBConfig {
 			return newID;
 		}
 		return newID;
-
 	}
 
 	public String insertUsr(Usr usr) {
@@ -136,17 +135,16 @@ public class UsrDAO implements DBConfig {
 			pStmt.setString(9, usr.getO_address());
 			pStmt.setString(10, usr.getTel());
 			pStmt.setString(11, usr.getEmail());
-
 //			ResultSet rs = pStmt.executeQuery();
 			pStmt.executeUpdate();
 
+		} catch (SQLIntegrityConstraintViolationException e) {
+			e.printStackTrace();
+			errorStr = "既に登録されている e-mail です";
 		} catch (SQLException e) {
 			e.printStackTrace();
 			errorStr = "SQLエラーです。";
-			return errorStr;
 		}
 		return errorStr;
-
 	}
-
 }

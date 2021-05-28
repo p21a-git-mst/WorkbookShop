@@ -15,169 +15,136 @@ import model.ChkInputProc;
 import model.Usr;
 import model.UsrLogic;
 
-
-/**
- * Servlet implementation class Items
- */
 @WebServlet("/Regist")
 public class Regist extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Regist() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException{
-		// TODO Auto-generated method stub
-        request.setCharacterEncoding("UTF-8");
+		String errorMsg = "";
+		Usr usr = new Usr();
+		UsrLogic ul = new UsrLogic();
 
-        String errorMsg="";
-        Usr usr = new Usr();
-        UsrLogic ul=new UsrLogic();
+		ChkInputProc cil = new ChkInputProc();
 
-        ChkInputProc cil=new ChkInputProc();
+		int status = 0;
 
-        int status=0;
+		Enumeration<String> names = request.getParameterNames();
+		String buff = "";
+		while (names.hasMoreElements()) {
+			buff = names.nextElement();
+			System.out.println(buff);
+			System.out.println(request.getParameter(buff));
+		}
 
+		HttpSession session = request.getSession();
 
-        Enumeration<String> names = request.getParameterNames();
-        String buff="";
-        while (names.hasMoreElements()) {
-            buff=names.nextElement();
-            System.out.println(buff);
-            System.out.println(request.getParameter(buff));
-        }
+		if (request.getParameter("clear") != null) {
+			session.removeAttribute("registUsr");
+		}
 
+		Usr registUsr = (Usr) session.getAttribute("registUsr");
 
-        HttpSession session=request.getSession();
+		if (registUsr == null) {
+			session.setAttribute("registUsr", usr);
+		}
 
-        if(request.getParameter("clear")!=null) {
-            session.removeAttribute("registUsr");
-        }
+		if (request.getParameter("regist0") != null) {
+			status = 0;
 
-        Usr registUsr = (Usr) session.getAttribute("registUsr");
+			registUsr.setUser_id((registUsr.getUser_id() == null) ? "" : registUsr.getUser_id());
+			registUsr.setPassword((registUsr.getPassword() == null) ? "" : registUsr.getPassword());
+			registUsr.setL_name((registUsr.getL_name() == null) ? "" : registUsr.getL_name());
+			registUsr.setF_name((registUsr.getF_name() == null) ? "" : registUsr.getF_name());
+			registUsr.setL_name_kana((registUsr.getL_name_kana() == null) ? "" : registUsr.getL_name_kana());
+			registUsr.setF_name_kana((registUsr.getF_name_kana() == null) ? "" : registUsr.getF_name_kana());
+			registUsr.setPrefecture((registUsr.getPrefecture() == null) ? "" : registUsr.getPrefecture());
+			registUsr.setCity((registUsr.getCity() == null) ? "" : registUsr.getCity());
+			registUsr.setO_address((registUsr.getO_address() == null) ? "" : registUsr.getO_address());
+			registUsr.setTel((registUsr.getTel() == null) ? "" : registUsr.getTel());
+			registUsr.setEmail((registUsr.getEmail() == null) ? "" : registUsr.getEmail());
+		}
 
+		if (request.getParameter("regist1") != null) {
+			status = 1;
+		}
 
+		if (request.getParameter("regist2") != null) {
+			status = 2;
+		}
 
-        if(registUsr==null) {
-            session.setAttribute("registUsr", usr);
-	    }
+		if (status == 1) {
+			try {
+				//registUsr.setUser_id(ul.getNewID());
+				registUsr.setPassword(cil.trimString(request.getParameter("password")));
+				errorMsg += cil.chkPassword(registUsr.getPassword());
 
+				registUsr.setL_name(cil.trimString(request.getParameter("l_name")));
+				errorMsg += cil.chkL_name(registUsr.getL_name());
 
-        if(request.getParameter("regist0")!=null) {
-            status=0;
+				registUsr.setF_name(cil.trimString(request.getParameter("f_name")));
+				errorMsg += cil.chkF_name(registUsr.getF_name());
 
-                registUsr.setUser_id((registUsr.getUser_id()==null)? "":registUsr.getUser_id());
+				registUsr.setL_name_kana(cil.trimString(request.getParameter("l_name_kana")));
+				errorMsg += cil.chkL_name_kana(registUsr.getL_name_kana());
 
-                registUsr.setPassword((registUsr.getPassword()==null)? "":registUsr.getPassword());
-                registUsr.setL_name((registUsr.getL_name()==null)? "":registUsr.getL_name());
-                registUsr.setF_name((registUsr.getF_name()==null)? "":registUsr.getF_name());
-                registUsr.setL_name_kana((registUsr.getL_name_kana()==null)? "":registUsr.getL_name_kana());
-                registUsr.setF_name_kana((registUsr.getF_name_kana()==null)? "":registUsr.getF_name_kana());
-                registUsr.setPrefecture((registUsr.getPrefecture()==null)? "":registUsr.getPrefecture());
-                registUsr.setCity((registUsr.getCity()==null)? "":registUsr.getCity());
-                registUsr.setO_address((registUsr.getO_address()==null)? "":registUsr.getO_address());
-                registUsr.setTel((registUsr.getTel()==null)? "":registUsr.getTel());
-                registUsr.setEmail((registUsr.getEmail()==null)? "":registUsr.getEmail());
+				registUsr.setF_name_kana(cil.trimString(request.getParameter("f_name_kana")));
+				errorMsg += cil.chkF_name_kana(registUsr.getF_name_kana());
 
-        }
+				registUsr.setPrefecture(cil.trimString(request.getParameter("prefecture")));
+				errorMsg += cil.chkPrefecture(registUsr.getPrefecture());
 
+				registUsr.setCity(cil.trimString(request.getParameter("city")));
+				errorMsg += cil.chkCity(registUsr.getCity());
 
-        if(request.getParameter("regist1")!=null) {
-            status=1;
-        }
+				registUsr.setO_address(cil.trimString(request.getParameter("o_address")));
+				errorMsg += cil.chkO_address(registUsr.getO_address());
 
-        if(request.getParameter("regist2")!=null) {
-            status=2;
-        }
+				registUsr.setTel(cil.trimString(request.getParameter("tel")));
+				errorMsg += cil.chkTel(registUsr.getTel());
 
+				registUsr.setEmail(cil.trimString(request.getParameter("email")));
+				errorMsg += cil.chkEmail(registUsr.getEmail());
 
-        if(status==1) {
-            try {
-                //registUsr.setUser_id(ul.getNewID());
-                registUsr.setPassword(cil.trimString(request.getParameter("password")));
-                errorMsg+=cil.chkPassword(registUsr.getPassword());
+				if (errorMsg.length() == 0) {
+					status = 1;
+				} else {
+					status = 0;
+				}
 
-                registUsr.setL_name(cil.trimString(request.getParameter("l_name")));
-                errorMsg+=cil.chkL_name(registUsr.getL_name());
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
 
-                registUsr.setF_name(cil.trimString(request.getParameter("f_name")));
-                errorMsg+=cil.chkF_name(registUsr.getF_name());
+		if (status == 2) {
+			try {
+				registUsr.setUser_id(ul.getNewID());
+				request.setAttribute("registUsr", registUsr);
 
-                registUsr.setL_name_kana(cil.trimString(request.getParameter("l_name_kana")));
-                errorMsg+=cil.chkL_name_kana(registUsr.getL_name_kana());
+				errorMsg = ul.insertUsr(registUsr);
+				if (errorMsg.isEmpty()) {
+					session.removeAttribute("registUsr");
+				}else {
+					status = 0;// 初期画面に
+				}
 
-                registUsr.setF_name_kana(cil.trimString(request.getParameter("f_name_kana")));
-                errorMsg+=cil.chkF_name_kana(registUsr.getF_name_kana());
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+		request.setAttribute("status", status);
+		request.setAttribute("errorMsg", errorMsg);
 
-                registUsr.setPrefecture(cil.trimString(request.getParameter("prefecture")));
-                errorMsg+=cil.chkPrefecture(registUsr.getPrefecture());
-
-                registUsr.setCity(cil.trimString(request.getParameter("city")));
-                errorMsg+=cil.chkCity(registUsr.getCity());
-
-                registUsr.setO_address(cil.trimString(request.getParameter("o_address")));
-                errorMsg+=cil.chkO_address(registUsr.getO_address());
-
-                registUsr.setTel(cil.trimString(request.getParameter("tel")));
-                errorMsg+=cil.chkTel(registUsr.getTel());
-
-                registUsr.setEmail(cil.trimString(request.getParameter("email")));
-                errorMsg+=cil.chkEmail(registUsr.getEmail());
-
-
-                if(errorMsg.length() == 0) {
-                    status=1;
-                }else {
-                    status=0;
-                }
-
-
-            }catch(NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        if(status==2) {
-            try {
-                registUsr.setUser_id(ul.getNewID());
-                request.setAttribute("registUsr",registUsr);
-
-                ul.insertUsr(registUsr);
-
-                session.removeAttribute("registUsr");
-
-            }catch(NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-
-        request.setAttribute("status",status);
-        request.setAttribute("errorMsg",errorMsg);
-
-            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/jsp/regist.jsp");
-            dispatcher.forward(request, response);
-
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/jsp/regist.jsp");
+		dispatcher.forward(request, response);
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    request.setCharacterEncoding("UTF-8");
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
 		doGet(request, response);
-
 	}
-
 }

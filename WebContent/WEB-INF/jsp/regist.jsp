@@ -126,6 +126,7 @@ GenPrefectureSel genPrefectureSel= new GenPrefectureSel();
     </FORM>
 <% } %>
 <%if(status==2){ %>
+<%  if(errorMsg.isEmpty()){ %>
 <%  Usr doneUsr=(Usr)request.getAttribute("registUsr"); %>
     <table class="login" align="center">
     <tr>
@@ -147,7 +148,13 @@ GenPrefectureSel genPrefectureSel= new GenPrefectureSel();
       <td colspan="2"><span class="center"><br><br><form method="POST" action="Login"><input type="submit" name="history" value="　　　　　　こちらからログインし直してください　　　　　　"></form><br><br></span></td>
     </tr>
     </table>
-
+<%   } else { %>
+    <table class="login" align="center">
+    <tr>
+      <th colspan="2">登録失敗<%= errorMsg %></th>
+    </tr>
+    </table>
+<%   } %>
 <% } %>
 	</main>
 	<!-- メイン ここまで -->
