@@ -6,12 +6,11 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
 build/
-WebContent/WEB-INF/lib/
+
 
 # External tool builders
 .externalToolBuilders/
