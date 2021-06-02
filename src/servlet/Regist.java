@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import model.ChkInputProc;
+import model.MailLogic;
 import model.Usr;
 import model.UsrLogic;
 
@@ -127,6 +128,8 @@ public class Regist extends HttpServlet {
 				errorMsg = ul.insertUsr(registUsr);
 				if (errorMsg.isEmpty()) {
 					session.removeAttribute("registUsr");
+					// メール送信
+					new MailLogic().send(registUsr.getL_name()+"　"+registUsr.getF_name()+"様");
 				}else {
 					status = 0;// 初期画面に
 				}
